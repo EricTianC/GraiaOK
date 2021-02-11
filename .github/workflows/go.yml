@@ -11,7 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        file: [GraiaOK_windows-386.exe, GraiaOK_windows-amd64.exe, GraiaOK_linux-amd64, GraiaOK_linux-arm64, GraiaOK_linux-arm, GraiaOK_darwin-amd64]
+        - file: GraiaOK_windows-386.exe
+          os: windows
+          arch: 386
+        - file: GraiaOK_windows-amd64.exe
+          os: windows
+          arch: amd64
+        - file: GraiaOK_linux-amd64
+          os: linux
+          arch: amd64
+        - file: GraiaOK_linux-arm64
+          os: linux
+          arch: arm64
+        - file: GraiaOK_linux-arm
+          os: linux
+          arch: arm
+        - file: GraiaOK_darwin-amd64
+          os: darwin
+          arch: amd64
     steps:
     - uses: actions/checkout@main
 
@@ -20,23 +37,8 @@ jobs:
       with:
         go-version: 1.15
 
-    - name: Windows x86
-      run: GOOS=windows GOARCH=386 go build -o output/GraiaOK_windows-386.exe .
-
-    - name: Windows x64
-      run: GOOS=windows GOARCH=amd64 go build -o output/GraiaOK_windows-amd64.exe .
-
-    - name: Linux amd64
-      run: GOOS=linux GOARCH=amd64 go build -o output/GraiaOK_linux-amd64 .
-
-    - name: Linux arm64
-      run: GOOS=linux GOARCH=arm64 go build -o output/GraiaOK_linux-arm64 .
-
-    - name: Linux arm
-      run: GOOS=linux GOARCH=arm go build -o output/GraiaOK_linux-arm .
-
-    - name: Darwin amd64
-      run: GOOS=darwin GOARCH=amd64 go build -o output/GraiaOK_darwin-amd64 .
+    - name: Build
+      run: GOOS=${{matrix.os}} GOARCH=${{matrix.arch}} go build -o output/${{matrix.file}} .
 
     - name: Create Release
       id: create_release
