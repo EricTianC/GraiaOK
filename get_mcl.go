@@ -33,7 +33,7 @@ func get_url() (string, error) {
 	json.NewDecoder(resp.Body).Decode(&data)
 	log.Printf("target version: %s\t%s\n", data["tag_name"], data["published_at"])
 	log.Println(data["body"])
-	download_url := fmt.Sprintf("%s", data["assets"].([]interface{})[INDEXMAP[runtime.GOOS]].(map[string]interface{})["browser_download_url"])
+	download_url := data["assets"].([]interface{})[INDEXMAP[runtime.GOOS]].(map[string]interface{})["browser_download_url"].(string)
 	return download_url, nil
 }
 
