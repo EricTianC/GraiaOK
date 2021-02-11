@@ -1,0 +1,60 @@
+name: Go
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+
+  build-and-release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: [GraiaOK_windows-386.exe, GraiaOK_windows-amd64.exe, GraiaOK_linux-amd64, GraiaOK_linux-arm64, GraiaOK_linux-arm, GraiaOK_darwin-amd64]
+    steps:
+    - uses: actions/checkout@main
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Windows x86
+      run: GOOS=windows GOARCH=386 go build -o output/GraiaOK_windows-386.exe .
+
+    - name: Windows x64
+      run: GOOS=windows GOARCH=amd64 go build -o output/GraiaOK_windows-amd64.exe .
+
+    - name: Linux amd64
+      run: GOOS=linux GOARCH=amd64 go build -o output/GraiaOK_linux-amd64 .
+
+    - name: Linux arm64
+      run: GOOS=linux GOARCH=arm64 go build -o output/GraiaOK_linux-arm64 .
+
+    - name: Linux arm
+      run: GOOS=linux GOARCH=arm go build -o output/GraiaOK_linux-arm .
+
+    - name: Darwin amd64
+      run: GOOS=darwin GOARCH=amd64 go build -o output/GraiaOK_darwin-amd64 .
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          assets_path: ./output/${{ matrix.file }}
+          assets_name: ${{ matrix.file }}
+          assets_content_type: application/vnd.github.v3+json
