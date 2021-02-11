@@ -33,14 +33,14 @@ func get_url() (string, error) {
 	json.NewDecoder(resp.Body).Decode(&data)
 	log.Printf("target version: %s\t%s\n", data["tag_name"], data["published_at"])
 	log.Println(data["body"])
-	download_url := data["assets"].([]interface{})[INDEXMAP[runtime.GOOS]].(map[string]interface{})["browser_download_url"]
+	download_url := fmt.Sprintf("%s", data["assets"].([]interface{})[INDEXMAP[runtime.GOOS]].(map[string]interface{})["browser_download_url"])
 	return download_url, nil
 }
 
 func get_mcl() string{
 	downUrl, err := get_url()
 	if err != nil{
-		log.Error(err)
+		log.Fatal(err)
 	}
 	return downUrl
 }
