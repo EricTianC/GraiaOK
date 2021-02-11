@@ -11,24 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        - file: GraiaOK_windows-386.exe
-          os: windows
-          arch: 386
-        - file: GraiaOK_windows-amd64.exe
-          os: windows
-          arch: amd64
-        - file: GraiaOK_linux-amd64
-          os: linux
-          arch: amd64
-        - file: GraiaOK_linux-arm64
-          os: linux
-          arch: arm64
-        - file: GraiaOK_linux-arm
-          os: linux
-          arch: arm
-        - file: GraiaOK_darwin-amd64
-          os: darwin
-          arch: amd64
+        include:
+          - file: GraiaOK_windows-386.exe
+            os: windows
+            arch: 386
+          - file: GraiaOK_windows-amd64.exe
+            os: windows
+            arch: amd64
+          - file: GraiaOK_linux-amd64
+            os: linux
+            arch: amd64
+          - file: GraiaOK_linux-arm64
+            os: linux
+            arch: arm64
+          - file: GraiaOK_linux-arm
+            os: linux
+            arch: arm
+          - file: GraiaOK_darwin-amd64
+            os: darwin
+            arch: amd64
     steps:
     - uses: actions/checkout@main
 
