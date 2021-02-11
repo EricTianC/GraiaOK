@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"path"
 	"runtime"
 )
 
@@ -37,10 +39,16 @@ func get_url() (string, error) {
 	return download_url, nil
 }
 
-func get_mcl() string{
+func get_mcl() {
 	downUrl, err := get_url()
-	if err != nil{
+	u, err := url.ParseRequestURI(downUrl)
+	filename := path.Base(u.Path)
+	if err != nil {
 		log.Fatal(err)
+		return
 	}
-	return downUrl
+	if !save(downFile(downUrl), filename) {
+		log.Fatal("保存失败")
+		return
+	}
 }
