@@ -20,6 +20,7 @@ func get_latest_version_url(repo string, index int) (string, error) {
 	 *	最新仓库地址  string
 	 *	异常  error
 	 */
+	log.Printf("正在获取仓库%s的最新Release\n", repo)
 	resp, err := http.Get(fmt.Sprintf(GET_VERSION, repo))
 	if err != nil {
 		return "", err
