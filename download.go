@@ -1,39 +1,51 @@
 package main
 
 import (
-	"bufio"
-	"log"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
+
+	"github.com/dustin/go-humanize"
 )
 
-func save(br *bufio.Reader, fname string) bool {
-	if br == nil {
-		return false
-	}
-	f, err := os.OpenFile(fname, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
-	if err != nil {
-		panic(err)
-	}
-	_, err = br.WriteTo(f)
-	if err != nil {
-		panic(err)
-	}
-	_ = f.Close()
-	log.Println("下载成功")
-	return true
+type WriteCounter struct {
+	Total uint64
 }
 
-func downFile(url string) *bufio.Reader {
-	req, err := http.NewRequest("GET", url, nil)
-	log.Println("开始下载...")
-	resp, err := http.DefaultClient.Do(req)
+func (wc *WriteCounter) Write(p []byte) (int, error) {
+	n := len(p)
+	wc.Total += uint64(n)
+	wc.printProgress()
+	return n, nil
+}
+
+func (wc WriteCounter) printProgress() {
+	fmt.Printf("\r%s", strings.Repeat(" ", 35))
+	fmt.Printf("\r下载中...   %s 已完成", humanize.Bytes(wc.Total))
+}
+
+func downloadFile(filepath string, url string) error {
+	out, err := os.Create(filepath + ".tmp")
 	if err != nil {
-		log.Fatalln(err)
-		return nil
+		return err
 	}
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalln()
+	resp, err := http.Get(url)
+	if err != nil {
+		out.Close()
+		return err
 	}
-	return bufio.NewReaderSize(resp.Body, 1<<20)
+	defer resp.Body.Close()
+	counter := &WriteCounter{}
+	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
+		out.Close()
+		return err
+	}
+	fmt.Print("\n")
+	out.Close()
+	if err = os.Rename(filepath+".tmp", filepath); err != nil {
+		return err
+	}
+	return nil
 }

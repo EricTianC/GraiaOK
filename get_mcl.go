@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"fmt"
+	//"fmt"
 )
 
 const REPOURL = "iTXTech/mirai-console-loader"
@@ -12,5 +12,8 @@ func get_mcl() {
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Println(downUrl)
+	err = downloadFile("mcl.zip", downUrl)
+	if err != nil {
+		log.Panicf("下载失败：%s", err)
+	}
 }
