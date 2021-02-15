@@ -55,7 +55,7 @@ jobs:
         go-version: 1.15
 
     - name: Build
-      run: GOOS=${{matrix.os}} GOARCH=${{matrix.arch}} go build -o output/${{matrix.file}} .
+      run: GOOS=${{matrix.os}} GOARCH=${{matrix.arch}} go build -ldflags "-s -w" -o output/${{matrix.file}} .
 
     - name: Upload Release Asset
       id: upload-release-asset 

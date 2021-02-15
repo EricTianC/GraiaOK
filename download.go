@@ -11,7 +11,8 @@ import (
 )
 
 type WriteCounter struct {
-	Total uint64
+	Total  uint64
+	Length uint64
 }
 
 func (wc *WriteCounter) Write(p []byte) (int, error) {
@@ -23,7 +24,7 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 
 func (wc WriteCounter) printProgress() {
 	fmt.Printf("\r%s", strings.Repeat(" ", 35))
-	fmt.Printf("\r下载中...   %s 已完成", humanize.Bytes(wc.Total))
+	fmt.Printf("\r下载中...\t[%s/%s]", humanize.Bytes(wc.Total), humanize.Bytes(wc.Length))
 }
 
 func downloadFile(filepath string, url string) error {
@@ -37,7 +38,7 @@ func downloadFile(filepath string, url string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	counter := &WriteCounter{}
+	counter := &WriteCounter{0, uint64(resp.ContentLength)}
 	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
 		out.Close()
 		return err
