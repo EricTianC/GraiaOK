@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	archiver "github.com/mholt/archiver"
 )
 
 const (
@@ -15,10 +14,11 @@ func get_mcl() {
 	if _, err := os.Stat(MCL_ZIP); err != nil {
 		download_mcl()
 	}
-	err := archiver.Unarchive(MCL_ZIP, ".")
+	err := unpack(MCL_ZIP, ".")
 	if err != nil {
 		log.Panicf("解压失败：%s", err)
 	}
+	os.Remove(MCL_ZIP)
 }
 
 func download_mcl() {

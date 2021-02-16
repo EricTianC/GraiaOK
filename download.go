@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dustin/go-humanize"
+	"github.com/mholt/archiver"
 )
 
 type WriteCounter struct {
@@ -49,4 +50,8 @@ func downloadFile(filepath string, url string) error {
 		return err
 	}
 	return nil
+}
+
+func unpack(origin string, target string) error {
+	return archiver.Unarchive(origin, target)
 }
