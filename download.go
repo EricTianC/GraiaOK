@@ -53,5 +53,10 @@ func downloadFile(filepath string, url string) error {
 }
 
 func unpack(origin string, target string) error {
-	return archiver.Unarchive(origin, target)
+	err := archiver.Unarchive(origin, target)
+	if err != nil {
+		return err
+	}
+	os.Remove(origin)
+	return nil
 }

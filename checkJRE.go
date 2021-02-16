@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"regexp"
 	"runtime"
 
 	"github.com/PuerkitoBio/goquery"
@@ -29,9 +30,9 @@ var ARCH = map[string]string{
 }
 
 func checkJRE() {
-	//if checkJavaBin() {
-	//	return
-	//}
+	if checkJavaBin() {
+		return
+	}
 	if whether_download_java_or_not() {
 		download_java()
 	}
@@ -84,6 +85,16 @@ func download_java() error {
 		link, _ := selection.Attr("href")
 		links = append(links, link)
 	})
-
+	rt := fmt.Sprintf("^OpenJDK%sU-%s_%s_%s_hotspot_[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{1,2}_[0-9]\\.(zip|tar\\.gz)", JAVA_VERSION, JDK_OR_JRE, ARCH[arch], OS[runtime.GOOS])
+	r, _ := regexp.Compile(rt)
+	var arch_url, name string
+	for _, link := range links {
+		if r.MatchString(link) {
+			name = link
+			arch_url = url + link
+		}
+	}
+	downloadFile(name, arch_url)
+	unpack(name, "./jre/")
 	return nil
 }
