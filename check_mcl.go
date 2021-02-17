@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -48,7 +49,7 @@ func download_mcl() {
 
 func first_run_mcl() {
 	args := append(MCL_BASE_ARG, os.Args...)
-	cmd := exec.Command(javaPath+JAVA, args...)
+	cmd := exec.Command(filepath.Join(javaPath, JAVA), args...)
 	cmd.Stdin = os.Stdin
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -62,7 +63,7 @@ func first_run_mcl() {
 	go wait_first_complete(stdout)
 	cmd.Wait()
 	args = append(MCL_BASE_ARG, "--update-package net.mamoe:mirai-api-http --channel stable --type plugin")
-	cmd = exec.Command(javaPath+JAVA, args...)
+	cmd = exec.Command(filepath.Join(javaPath, JAVA), args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

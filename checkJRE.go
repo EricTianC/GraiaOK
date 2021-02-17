@@ -46,12 +46,12 @@ func checkJavaBin() bool {
 	case "macos":
 		matches, err := filepath.Glob("./jre/*/Contents/Home/bin/*")
 		if err == nil && len(matches) != 0 {
-			javaPath, _ = filepath.Split(matches[0])
+			javaPath = filepath.Dir(matches[0])
 		}
 	default:
 		matches, err := filepath.Glob("./jre/*/bin/*")
 		if err == nil && len(matches) != 0 {
-			javaPath, _ = filepath.Split(matches[0])
+			javaPath = filepath.Dir(matches[0])
 		}
 
 	}
