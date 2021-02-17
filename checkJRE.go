@@ -41,6 +41,21 @@ func checkJRE() {
 }
 
 func checkJavaBin() bool {
+
+	switch runtime.GOOS {
+	case "macos":
+		matches, err := filepath.Glob("./jre/*/Contents/Home/bin/*")
+		if err == nil && len(matches) != 0 {
+			javaPath, _ = filepath.Split(matches[0])
+		}
+	default:
+		matches, err := filepath.Glob("./jre/*/bin/*")
+		if err == nil && len(matches) != 0 {
+			javaPath, _ = filepath.Split(matches[0])
+		}
+
+	}
+
 	jpath, err := exec.LookPath(JAVA)
 	if err != nil {
 		return false
@@ -94,6 +109,7 @@ func download_java() error {
 		if r.MatchString(link) {
 			name = link
 			arch_url = url + link
+			break
 		}
 	}
 	downloadFile(name, arch_url)
@@ -101,10 +117,10 @@ func download_java() error {
 	switch runtime.GOOS {
 	case "macos":
 		matches, _ := filepath.Glob("./jre/*/Content/bin/*")
-		javaPath, _ = filepath.Split(matches[0])
+		javaPath = filepath.Dir(matches[0])
 	default:
 		matches, _ := filepath.Glob("./jre/*/bin/*")
-		javaPath, _ = filepath.Split(matches[0])
+		javaPath = filepath.Dir(matches[0])
 	}
 	log.Printf("已自动配置Java环境，请手动将%s添加到环境变量中", javaPath)
 	return nil

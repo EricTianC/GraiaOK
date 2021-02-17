@@ -2,4 +2,4 @@
 !*.go
 mcl
 mcl.*
-test
+test*
