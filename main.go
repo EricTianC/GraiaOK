@@ -1,6 +1,6 @@
 package main
 
-var javaPath = "./jre/bin/java"
+var javaPath string
 
 func main() {
 	checkJRE()

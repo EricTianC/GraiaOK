@@ -5,27 +5,19 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 
-	"github.com/dustin/go-humanize"
 	"github.com/mholt/archiver"
+	"github.com/qianlnk/pgbar"
 )
 
 type WriteCounter struct {
-	Total  uint64
-	Length uint64
+	Bar *pgbar.Bar
 }
 
 func (wc *WriteCounter) Write(p []byte) (int, error) {
 	n := len(p)
-	wc.Total += uint64(n)
-	wc.printProgress()
+	wc.Bar.Add(int(n))
 	return n, nil
-}
-
-func (wc WriteCounter) printProgress() {
-	fmt.Printf("\r%s", strings.Repeat(" ", 35))
-	fmt.Printf("\r下载中...\t[%s/%s]", humanize.Bytes(wc.Total), humanize.Bytes(wc.Length))
 }
 
 func downloadFile(filepath string, url string) error {
@@ -39,7 +31,8 @@ func downloadFile(filepath string, url string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	counter := &WriteCounter{0, uint64(resp.ContentLength)}
+	bar := pgbar.NewBar(0, "下载中", int(resp.ContentLength))
+	counter := &WriteCounter{bar}
 	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
 		out.Close()
 		return err

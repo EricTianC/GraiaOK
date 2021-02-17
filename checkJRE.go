@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 
@@ -31,7 +32,7 @@ var ARCH = map[string]string{
 
 func checkJRE() {
 	if checkJavaBin() {
-		return
+		//return
 	}
 	if whether_download_java_or_not() {
 		download_java()
@@ -96,5 +97,14 @@ func download_java() error {
 	}
 	downloadFile(name, arch_url)
 	unpack(name, "./jre/")
+	switch runtime.GOOS {
+	case "macos":
+		matches, _ := filepath.Glob("./jre/*/Content/bin/*")
+		javaPath, _ = filepath.Split(matches[0])
+	default:
+		matches, _ := filepath.Glob("./jre/*/bin/*")
+		javaPath, _ = filepath.Split(matches[0])
+	}
+	fmt.Println(javaPath)
 	return nil
 }
