@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -32,7 +33,7 @@ var ARCH = map[string]string{
 
 func checkJRE() {
 	if checkJavaBin() {
-		//return
+		return
 	}
 	if whether_download_java_or_not() {
 		download_java()
@@ -105,6 +106,6 @@ func download_java() error {
 		matches, _ := filepath.Glob("./jre/*/bin/*")
 		javaPath, _ = filepath.Split(matches[0])
 	}
-	fmt.Println(javaPath)
+	log.Printf("已自动配置Java环境，请手动将%s添加到环境变量中", javaPath)
 	return nil
 }
