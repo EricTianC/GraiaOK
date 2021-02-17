@@ -45,7 +45,7 @@ func checkJavaBin() bool {
 	if err != nil {
 		return false
 	}
-	javaPath = jpath
+	javaPath, _ = filepath.Split(jpath)
 	return true
 }
 
