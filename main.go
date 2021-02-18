@@ -1,13 +1,14 @@
 package main
 
 import (
-	"os"
-	"os/exec"
-	"path/filepath"
+	"fmt"
+
+	env "github.com/EricTianC/GraiaOK/environment"
 )
 
 var javaPath string
 
+/*
 func main() {
 	checkJRE()
 	check_mcl()
@@ -18,4 +19,11 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	_ = cmd.Run()
+}
+*/
+
+func main() {
+	globalES := env.NewEnvSpace()
+	globalES.CheckEnv()
+	fmt.Print(globalES.EnvList)
 }

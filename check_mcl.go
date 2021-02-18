@@ -75,7 +75,7 @@ func wait_first_complete(r io.Reader) {
 	for scanner.Scan() {
 		text := scanner.Text()
 		if strings.Contains(text, "mirai-console started successfully.") {
-			fmt.Print("麻烦您手动输一下stop并回车，谢谢了")
+			log.Println("麻烦您手动输一下stop并回车，谢谢了")
 		}
 		fmt.Println(text)
 	}
