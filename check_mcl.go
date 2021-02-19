@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"bufio"
 	"fmt"
@@ -33,7 +34,6 @@ func get_mcl() {
 	if err != nil {
 		log.Panicf("解压失败：%s", err)
 	}
-	os.Remove(MCL_ZIP)
 }
 
 func download_mcl() {
@@ -80,3 +80,4 @@ func wait_first_complete(r io.Reader) {
 		fmt.Println(text)
 	}
 }
+*/
