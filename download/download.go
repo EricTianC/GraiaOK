@@ -1,4 +1,4 @@
-package main
+package download
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-func downloadFile(filepath string, url string) error {
+func DownloadFile(filepath string, url string) error {
 	out, err := os.Create(filepath + ".tmp")
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func downloadFile(filepath string, url string) error {
 	return nil
 }
 
-func unpack(origin string, target string) error {
+func Unpack(origin string, target string) error {
 	err := archiver.Unarchive(origin, target)
 	if err != nil {
 		return err

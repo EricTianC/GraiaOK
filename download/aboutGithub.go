@@ -1,5 +1,5 @@
 //有关github的所有函数
-package main
+package download
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 
 const GET_VERSION = "https://api.github.com/repos/%s/releases/latest"
 
-func get_latest_version_url(repo string, index int) (string, error) {
+func GetLatestVersionUrl(repo string, index int) (string, error) {
 	/* 获取仓库最新Release的下载url
 	 *
 	 * 参数：

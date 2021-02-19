@@ -1,5 +1,8 @@
 *.exe
 !*.go
+!/environment/mcl.go
 mcl
-mcl.*
+mcl.exe
 test*
+.env
+.vscode
