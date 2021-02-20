@@ -91,7 +91,7 @@ func yes_or_not() bool {
 
 func download_java() error {
 	arch := runtime.GOARCH
-	if arch == "windows" && whether_use_native_or_not() {
+	if runtime.GOOS == "windows" && whether_use_native_or_not() {
 		arch = "386"
 	}
 	url := fmt.Sprintf(MIRROR, JAVA_VERSION, JDK_OR_JRE, ARCH[arch], OS[runtime.GOOS])
