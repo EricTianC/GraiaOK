@@ -20,7 +20,7 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-func DownloadFile(filepath string, url string) error {
+func DownloadFile(filepath string, url string, title string) error {
 	out, err := os.Create(filepath + ".tmp")
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func DownloadFile(filepath string, url string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	bar := pgbar.NewBar(0, "下载中", int(resp.ContentLength))
+	bar := pgbar.NewBar(0, title, int(resp.ContentLength))
 	counter := &WriteCounter{bar}
 	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
 		out.Close()

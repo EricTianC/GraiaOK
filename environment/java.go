@@ -32,26 +32,33 @@ var ARCH = map[string]string{
 	"arm":   "arm",
 }
 
-func (es *EnvSpace) CheckJavaEnv(wg *sync.WaitGroup) error {
-	defer wg.Done()
+var jenv = &SimEnv{
+	Name:     "Java",
+	ExecName: "java",
+	BasePath: "java",
+}
 
-	jenv := &SimEnv{
-		Name:     "Java",
-		ExecName: "java",
-		BasePath: "java",
-	}
-
+func (es *EnvSpace) CheckJava(js chan<- bool) {
 	if jenv.IsInstalled() { //之所以把IsInstalled单独列成函数，是因为有的时候需要优先本地已装好的环境，有的时候又要优先自动装的环境
-		//return
+		js <- true
+		return
 	}
 
 	//检查EnvSpace中是否有Java可执行文件
-	jenv.LookForExecFileInSpace(es)
+	if jenv.LookForExecFileInSpace(es) {
+		js <- true
+		return
+	}
+	js <- false
+}
 
+func (es *EnvSpace) DownloadJava(gwg *sync.WaitGroup, complete <-chan struct{}) error {
+	defer gwg.Done()
 	//下载Java
+
 	//确认是否使用32位
 	arch := runtime.GOARCH
-	if arch == "windows" && yesorNot("是否下载三十二位版本", true) {
+	if runtime.GOOS == "windows" && yesorNot("是否下载三十二位版本", false) {
 		arch = "386"
 	}
 	//解析镜像列表Html
@@ -76,30 +83,11 @@ func (es *EnvSpace) CheckJavaEnv(wg *sync.WaitGroup) error {
 			break
 		}
 	}
-	down.DownloadFile(name, arch_url)
+	down.DownloadFile(name, arch_url, "下载Java")
 	down.Unpack(name, filepath.Join(es.BasePath, jenv.BasePath))
-	//再检查一遍
+
 	if jenv.LookForExecFileInSpace(es) {
 		return nil
 	}
 	return fmt.Errorf("无法配置Java环境")
-}
-
-func yesorNot(question string, defau bool) bool {
-	fmt.Print(question + "[y/n]：")
-	var opt string
-	for {
-		fmt.Scanln(&opt)
-		switch opt {
-		case "y", "Y":
-			return true
-
-		case "n", "N":
-			return false
-		case "":
-			return defau
-		default:
-			fmt.Println("输入不正确")
-		}
-	}
 }

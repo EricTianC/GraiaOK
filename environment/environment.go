@@ -2,6 +2,8 @@
 package environment
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,8 +37,31 @@ func NewEnvSpace() *EnvSpace {
 }
 
 func (es *EnvSpace) CheckEnv() {
-	gwg.Add(1)
-	go es.CheckJavaEnv(&gwg)
+	javaExits := make(chan bool)
+	pyExits := make(chan bool)
+	var js, pys bool
+	go es.CheckJava(javaExits)
+	go es.CheckPython(pyExits)
+	gwg.Add(2)
+	go func() {
+		js = <-javaExits
+		gwg.Done()
+	}()
+	go func() {
+		pys = <-pyExits
+		gwg.Done()
+	}()
+	gwg.Wait()
+	close(javaExits)
+	close(pyExits)
+	if js == false && yesorNot("未检测到Java环境，是否下载", true) {
+		gwg.Add(1)
+		es.DownloadJava(&gwg)
+	}
+	if pys == false && yesorNot("未检测到Python环境或版本过低，是否下载", true) {
+		gwg.Add(1)
+		es.DownloadPy(&gwg)
+	}
 	gwg.Wait()
 	es.CheckMcl()
 }
@@ -83,4 +108,38 @@ func (se *SimEnv) LookForExecFileInSpace(es *EnvSpace) bool {
 	}
 	es.EnvList = append(es.EnvList, *se)
 	return true
+}
+
+func (es *EnvSpace) Envs() []string {
+	if len(es.EnvList) == 0 {
+		return []string{""}
+	}
+	var envs []string
+	for _, env := range es.EnvList {
+		envs = append(envs, env.ExecPath)
+	}
+	return envs
+}
+
+func yesorNot(question string, defau bool) bool {
+	if defau == false {
+		log.Print(question + "[y/n](默认n)")
+	} else {
+		log.Print(question + "[y/n]：")
+	}
+	var opt string
+	for {
+		fmt.Scanln(&opt)
+		switch opt {
+		case "y", "Y":
+			return true
+
+		case "n", "N":
+			return false
+		case "":
+			return defau
+		default:
+			fmt.Println("输入不正确")
+		}
+	}
 }

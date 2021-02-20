@@ -1,8 +1,7 @@
 *.exe
 !*.go
 !/environment/mcl.go
-mcl
-mcl.exe
 test*
 .env
 .vscode
+__debug_bin
