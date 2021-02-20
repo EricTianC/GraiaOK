@@ -26,19 +26,22 @@ func (es *EnvSpace) CheckPython(pys chan<- bool) {
 	pys <- false
 }
 
-func (es *EnvSpace) DownloadPy(gwg *sync.WaitGroup) {
+func (es *EnvSpace) DownloadPy(gwg *sync.WaitGroup, javacomplete <-chan struct{}) {
 	defer gwg.Done()
 	if runtime.GOOS == "windows" {
 		downloadPyWindows()
+		<-javacomplete
 	} else if runtime.GOOS == "linux" {
+		<-javacomplete
 		downloadPyLinux()
 	} else {
+		<-javacomplete
 		log.Print("您的系统暂不支持，请手动配置Python3.8以上版本")
 	}
 }
 
 func downloadPyLinux() {
-
+	log.Println()
 }
 
 func downloadPyWindows() {

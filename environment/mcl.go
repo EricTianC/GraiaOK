@@ -91,12 +91,16 @@ func firstRunMcl(es *EnvSpace) error {
 
 func (es *EnvSpace) MclCommand(args []string) *exec.Cmd {
 	if args == nil {
-		args = []string{"-jar", mclse.ExecName}
+		args = []string{"./mcl"}
 	} else {
 		args = append([]string{"-jar", mclse.ExecName}, args...)
 	}
 	cmd := exec.Command("java", args...)
 	cmd.Env = append(cmd.Env, es.Envs()...)
-	cmd.Dir = filepath.Join(es.BasePath, mclse.BasePath)
 	return cmd
+}
+
+//临时解决方法
+func MakeMclBat() {
+
 }

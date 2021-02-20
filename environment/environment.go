@@ -3,7 +3,6 @@ package environment
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -54,13 +53,14 @@ func (es *EnvSpace) CheckEnv() {
 	gwg.Wait()
 	close(javaExits)
 	close(pyExits)
+	complete := make(chan struct{})
 	if js == false && yesorNot("未检测到Java环境，是否下载", true) {
 		gwg.Add(1)
-		es.DownloadJava(&gwg)
+		es.DownloadJava(&gwg, complete)
 	}
 	if pys == false && yesorNot("未检测到Python环境或版本过低，是否下载", true) {
 		gwg.Add(1)
-		es.DownloadPy(&gwg)
+		es.DownloadPy(&gwg, complete)
 	}
 	gwg.Wait()
 	es.CheckMcl()
@@ -123,9 +123,9 @@ func (es *EnvSpace) Envs() []string {
 
 func yesorNot(question string, defau bool) bool {
 	if defau == false {
-		log.Print(question + "[y/n](默认n)")
+		fmt.Print(question + "[y/n](默认n)：")
 	} else {
-		log.Print(question + "[y/n]：")
+		fmt.Print(question + "[y/n]：")
 	}
 	var opt string
 	for {

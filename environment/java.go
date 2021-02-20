@@ -52,7 +52,7 @@ func (es *EnvSpace) CheckJava(js chan<- bool) {
 	js <- false
 }
 
-func (es *EnvSpace) DownloadJava(gwg *sync.WaitGroup, complete <-chan struct{}) error {
+func (es *EnvSpace) DownloadJava(gwg *sync.WaitGroup, complete chan<- struct{}) error {
 	defer gwg.Done()
 	//下载Java
 
@@ -85,7 +85,7 @@ func (es *EnvSpace) DownloadJava(gwg *sync.WaitGroup, complete <-chan struct{}) 
 	}
 	down.DownloadFile(name, arch_url, "下载Java")
 	down.Unpack(name, filepath.Join(es.BasePath, jenv.BasePath))
-
+	go func() { complete <- struct{}{} }()
 	if jenv.LookForExecFileInSpace(es) {
 		return nil
 	}
