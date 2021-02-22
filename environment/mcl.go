@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"sync"
 
 	down "github.com/EricTianC/GraiaOK/download"
 )
@@ -16,11 +18,14 @@ const (
 	MCL_ZIP = "mcl.zip"
 )
 
-var mclse = &SimEnv{
-	Name:     "mcl",
-	BasePath: "mcl",
-	ExecName: "mcl.jar",
-}
+var (
+	mclse = &SimEnv{
+		Name:     "mcl",
+		BasePath: "mcl",
+		ExecName: "mcl.jar",
+	}
+	once sync.Once
+)
 
 func (es *EnvSpace) CheckMcl() error {
 	if _, err := os.Stat(filepath.Join(es.BasePath, mclse.BasePath, mclse.ExecName)); err == nil {
@@ -72,6 +77,7 @@ func firstRunMcl(es *EnvSpace) error {
 			if strings.Contains(text, "mirai-console started successfully.") {
 				finished <- struct{}{}
 			}
+			fmt.Println(text)
 		}
 	}()
 	go func() {
@@ -89,18 +95,25 @@ func firstRunMcl(es *EnvSpace) error {
 	return nil
 }
 
+//Stdin已强制设定
 func (es *EnvSpace) MclCommand(args []string) *exec.Cmd {
 	if args == nil {
-		args = []string{"./mcl"}
+		args = []string{"-jar", mclse.ExecName}
 	} else {
 		args = append([]string{"-jar", mclse.ExecName}, args...)
 	}
 	cmd := exec.Command("java", args...)
-	cmd.Env = append(cmd.Env, es.Envs()...)
+	cmd.Stdin = os.Stdin
+	once.Do(func() {
+		var sep string //分隔符
+		switch runtime.GOOS {
+		case "windows":
+			sep = ";"
+		default:
+			sep = ":"
+		}
+		os.Setenv("PATH", os.Getenv("PATH")+strings.Join(es.Envs(), sep))
+	})
+	cmd.Dir = filepath.Join(es.BasePath, mclse.BasePath)
 	return cmd
-}
-
-//临时解决方法
-func MakeMclBat() {
-
 }

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	MIRROR       = "https://mirrors.tuna.tsinghua.edu.cn/AdoptOpenJDK/%s/%s/%s/%s/" //镜像地址，目前使用清华源，如要更换源需修改格式化代码
+	JAVA_MIRROR  = "https://mirrors.tuna.tsinghua.edu.cn/AdoptOpenJDK/%s/%s/%s/%s/" //镜像地址，目前使用清华源，如要更换源需修改格式化代码
 	JAVA_VERSION = "15"                                                             //要下载的Java版本
 	JDK_OR_JRE   = "jre"                                                            //下载JDK还是JRE，然而清华原貌似没的选（Jre也有javac）
 )
@@ -45,7 +45,7 @@ func (es *EnvSpace) CheckJava(js chan<- bool) {
 	}
 
 	//检查EnvSpace中是否有Java可执行文件
-	if jenv.LookForExecFileInSpace(es) {
+	if jenv.LookForExecFileinSpace(es) {
 		js <- true
 		return
 	}
@@ -62,7 +62,7 @@ func (es *EnvSpace) DownloadJava(gwg *sync.WaitGroup, complete chan<- struct{}) 
 		arch = "386"
 	}
 	//解析镜像列表Html
-	url := fmt.Sprintf(MIRROR, JAVA_VERSION, JDK_OR_JRE, ARCH[arch], OS[runtime.GOOS])
+	url := fmt.Sprintf(JAVA_MIRROR, JAVA_VERSION, JDK_OR_JRE, ARCH[arch], OS[runtime.GOOS])
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		return err
@@ -75,18 +75,18 @@ func (es *EnvSpace) DownloadJava(gwg *sync.WaitGroup, complete chan<- struct{}) 
 	//正则筛选符合的文件
 	rt := fmt.Sprintf("^OpenJDK%sU-%s_%s_%s_hotspot_[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{1,2}_[0-9]\\.(zip|tar\\.gz)", JAVA_VERSION, JDK_OR_JRE, ARCH[arch], OS[runtime.GOOS])
 	r, _ := regexp.Compile(rt)
-	var arch_url, name string
+	var archUrl, name string
 	for _, link := range links {
 		if r.MatchString(link) {
 			name = link
-			arch_url = url + link
+			archUrl = url + link
 			break
 		}
 	}
-	down.DownloadFile(name, arch_url, "下载Java")
+	down.DownloadFile(name, archUrl, "下载Java")
 	down.Unpack(name, filepath.Join(es.BasePath, jenv.BasePath))
 	go func() { complete <- struct{}{} }()
-	if jenv.LookForExecFileInSpace(es) {
+	if jenv.LookForExecFileinSpace(es) {
 		return nil
 	}
 	return fmt.Errorf("无法配置Java环境")

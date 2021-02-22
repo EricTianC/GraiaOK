@@ -14,6 +14,8 @@ type WriteCounter struct {
 	Bar *pgbar.Bar
 }
 
+var downNum = 0
+
 func (wc *WriteCounter) Write(p []byte) (int, error) {
 	n := len(p)
 	wc.Bar.Add(int(n))
@@ -21,6 +23,9 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 }
 
 func DownloadFile(filepath string, url string, title string) error {
+	if _, err := os.Stat(filepath); err == nil {
+		return nil
+	}
 	out, err := os.Create(filepath + ".tmp")
 	if err != nil {
 		return err
@@ -31,7 +36,9 @@ func DownloadFile(filepath string, url string, title string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	bar := pgbar.NewBar(0, title, int(resp.ContentLength))
+	defer numMinus()
+	bar := pgbar.NewBar(downNum, title, int(resp.ContentLength))
+	downNum++
 	counter := &WriteCounter{bar}
 	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
 		out.Close()
@@ -52,4 +59,8 @@ func Unpack(origin string, target string) error {
 	}
 	os.Remove(origin)
 	return nil
+}
+
+func numMinus() {
+	downNum--
 }

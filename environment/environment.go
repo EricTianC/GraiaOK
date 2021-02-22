@@ -3,6 +3,7 @@ package environment
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -54,16 +55,29 @@ func (es *EnvSpace) CheckEnv() {
 	close(javaExits)
 	close(pyExits)
 	complete := make(chan struct{})
+	defer close(complete)
 	if js == false && yesorNot("未检测到Java环境，是否下载", true) {
 		gwg.Add(1)
 		es.DownloadJava(&gwg, complete)
+	} else {
+		go func() {
+			complete <- struct{}{}
+		}()
 	}
 	if pys == false && yesorNot("未检测到Python环境或版本过低，是否下载", true) {
 		gwg.Add(1)
 		es.DownloadPy(&gwg, complete)
+	} else {
+		go func() {
+			<-complete
+		}()
 	}
 	gwg.Wait()
-	es.CheckMcl()
+	err := es.CheckMcl()
+	if err != nil {
+		log.Panic(err)
+	}
+	CheckGraia()
 }
 
 //检查是否已安装
@@ -91,8 +105,9 @@ func (se *SimEnv) HasDirinEnvSpace(es *EnvSpace) bool {
 }
 
 //在空间中查找对应可执行文件
-func (se *SimEnv) LookForExecFileInSpace(es *EnvSpace) bool {
+func (se *SimEnv) LookForExecFileinSpace(es *EnvSpace) bool {
 	if !se.HasDirinEnvSpace(es) {
+		os.Mkdir(filepath.Join(es.BasePath, se.BasePath), os.ModePerm)
 		return false
 	}
 
