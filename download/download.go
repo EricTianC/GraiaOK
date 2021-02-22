@@ -1,4 +1,4 @@
-package main
+package download
 
 import (
 	"fmt"
@@ -14,13 +14,18 @@ type WriteCounter struct {
 	Bar *pgbar.Bar
 }
 
+var downNum = 0
+
 func (wc *WriteCounter) Write(p []byte) (int, error) {
 	n := len(p)
 	wc.Bar.Add(int(n))
 	return n, nil
 }
 
-func downloadFile(filepath string, url string) error {
+func DownloadFile(filepath string, url string, title string) error {
+	if _, err := os.Stat(filepath); err == nil {
+		return nil
+	}
 	out, err := os.Create(filepath + ".tmp")
 	if err != nil {
 		return err
@@ -31,7 +36,9 @@ func downloadFile(filepath string, url string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	bar := pgbar.NewBar(0, "下载中", int(resp.ContentLength))
+	defer numMinus()
+	bar := pgbar.NewBar(downNum, title, int(resp.ContentLength))
+	downNum++
 	counter := &WriteCounter{bar}
 	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
 		out.Close()
@@ -45,11 +52,15 @@ func downloadFile(filepath string, url string) error {
 	return nil
 }
 
-func unpack(origin string, target string) error {
+func Unpack(origin string, target string) error {
 	err := archiver.Unarchive(origin, target)
 	if err != nil {
 		return err
 	}
 	os.Remove(origin)
 	return nil
+}
+
+func numMinus() {
+	downNum--
 }
