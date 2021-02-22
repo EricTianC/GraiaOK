@@ -3,6 +3,7 @@ package environment
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -76,7 +77,7 @@ func downloadPyWindows(es *EnvSpace) {
 	cmd := exec.Command("./"+name, "/passive", "TargetDir="+targetDir, "PrependPath=1")
 	cmd.Run()
 	pyse.LookForExecFileinSpace(es)
-
+	os.Remove(name)
 }
 
 func getPyVersion() (string, error) {
