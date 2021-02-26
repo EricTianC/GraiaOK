@@ -11,10 +11,10 @@ func main() {
 	globalES := env.NewEnvSpace()
 	globalES.CheckEnv()
 
-	go func() {
-		mcl := globalES.MclCommand(nil)
-		mcl.Run()
-	}()
+	//go func() {
+	mcl := globalES.MclCommand(nil)
+	mcl.Run()
+	//}()
 
 	//	go func() {
 	//
