@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 
@@ -77,20 +76,28 @@ func (es *EnvSpace) MclCommand(args []string) *exec.Cmd {
 	} else {
 		args = append([]string{"-jar", mclse.ExecName}, args...)
 	}
-	cmd := exec.Command("java", args...)
+	javaSimEnv, err := es.FindSimEnv("Java")
+	var javaPath string
+	if err != nil {
+		javaPath, _ = exec.LookPath("Java")
+	} else {
+		javaPath = javaSimEnv.ExecPath
+	}
+	javaPath, _ = filepath.Abs(javaPath)
+	cmd := exec.Command(filepath.Join(javaPath, "java"), args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	once.Do(func() {
-		var sep string //分隔符
-		switch runtime.GOOS {
-		case "windows":
-			sep = ";"
-		default:
-			sep = ":"
-		}
-		os.Setenv("PATH", os.Getenv("PATH")+strings.Join(es.Envs(), sep))
-	})
+	// once.Do(func() {
+	// 	var sep string //分隔符
+	// 	switch runtime.GOOS {
+	// 	case "windows":
+	// 		sep = ";"
+	// 	default:
+	// 		sep = ":"
+	// 	}
+	// 	os.Setenv("PATH", os.Getenv("PATH")+sep+strings.Join(es.Envs(), sep))
+	// })
 	cmd.Dir = filepath.Join(es.BasePath, mclse.BasePath)
 	return cmd
 }

@@ -136,11 +136,21 @@ func (es *EnvSpace) Envs() []string {
 	return envs
 }
 
+//查找指定SimEnv
+func (es *EnvSpace) FindSimEnv(name string) (SimEnv, error) {
+	for _, se := range es.EnvList {
+		if se.Name == name {
+			return se, nil
+		}
+	}
+	return *&SimEnv{}, fmt.Errorf("未找到")
+}
+
 func yesorNot(question string, defau bool) bool {
 	if defau == false {
-		fmt.Print(question + "[y/n](默认n)：")
+		fmt.Print(question + "([y]/n)：")
 	} else {
-		fmt.Print(question + "[y/n]：")
+		fmt.Print(question + "(y/[n])：")
 	}
 	var opt string
 	for {

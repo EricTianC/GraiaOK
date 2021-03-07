@@ -13,7 +13,10 @@ func main() {
 
 	//go func() {
 	mcl := globalES.MclCommand(nil)
-	mcl.Run()
+	err := mcl.Run()
+	if err != nil {
+		panic(err)
+	}
 	//}()
 
 	//	go func() {

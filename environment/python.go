@@ -28,8 +28,13 @@ var pyse = &SimEnv{
 
 func (es *EnvSpace) CheckPython(pys chan<- bool) {
 	if pyse.IsInstalled() {
-		ver, _ := getPyVersion()
-		verNum, _ := strconv.ParseFloat(ver[:3], 32)
+		ver, err := getPyVersion()
+		if err != nil {
+			log.Printf("获取Python版本失败，请确认Python版本是否大于等于3.8")
+		}
+		verNum, _ := strconv.ParseFloat(ver[:3], 64)
+		// TODO: 截取前三个字符会出现3.10变成3.1的问题，但其实多截一位还是会有3.10 < 3.8的问题
+		//预计后面使用数据结构来表示版本
 		if verNum < 3.8 {
 			pys <- false
 			return
@@ -56,12 +61,12 @@ func (es *EnvSpace) DownloadPy(gwg *sync.WaitGroup, javacomplete <-chan struct{}
 		downloadPyLinux()
 	} else {
 		<-javacomplete
-		log.Print("您的系统暂不支持，请手动配置Python3.8以上版本(含3.8)")
+		log.Print("您的系统暂不支持自动配置，请手动配置Python3.8以上版本(含3.8)")
 	}
 }
 
 func downloadPyLinux() {
-	log.Println()
+	log.Println("")
 }
 
 func downloadPyWindows(es *EnvSpace) {
